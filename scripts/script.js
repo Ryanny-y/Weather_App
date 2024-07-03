@@ -1,4 +1,5 @@
 import dayjs from 'https://unpkg.com/dayjs@1.11.11/esm/index.js';
+import { addToList, searchList } from './searchList.js';
 
 function renderPage() {
 
@@ -13,12 +14,51 @@ function renderPage() {
       displayWeather(e.target)
     }
   });
-  
+
+  const wrapperEl = document.querySelector('.wrapper');
+  const searchHistory = document.querySelector('.search-history-btn');
+  searchHistory.addEventListener('click', () => {
+    wrapperEl.scrollLeft = 316;
+    renderHistory();
+  })
+
+  const backBtn = document.querySelector('.back-btn');
+  backBtn.addEventListener('click', () => {
+    wrapperEl.scrollLeft = 0;
+  })
+
 };
+
+async function renderHistory() {
+  const responses = await Promise.all(
+    searchList.map(async (country) => {
+      const data = await fetchData(country);
+      return data;
+    })
+  );
+
+  const recentSearchHTML = responses.map(data => {
+    return `
+    <div class="flex items-center justify-between px-7 py-5 bg-indigo w-full rounded-3xl">
+      <div>
+        <p class="country-name text-xl">${data.name}</p>
+        <p class="temp text-4xl font-semibold mt-2">${data.temp}°</p>
+      </div>
+
+      <div class="h-24 w-24"><img src="images/icons/${data.weatherMain}.png" alt="" class="min-w-full h-full w-full"></div>
+    </div>
+    `
+  }).join('');
+
+  document.querySelector('.history-container').innerHTML = recentSearchHTML;
+
+}
 
 async function displayWeather(inputEl) {
   const data = await fetchData(inputEl.value);
   const today = dayjs().format("MMMM D, YYYY");
+  addToList(data.name);
+  
   const weatherDetail = [
     {
       name: 'Wind',
@@ -39,7 +79,7 @@ async function displayWeather(inputEl) {
     const weatherHTML = `
       <p class="date text-light-2 text-xs">${today}</p>
       <p class="city font-semibold text-2xl">${data.name}, ${data.country}</p>
-      <img src="images/icons/${data.weatherMain}.png" alt="" class="mx-auto w-32 h-32">
+      <img src="images/icons/${data.weatherMain}.png" alt="" class="block mx-auto w-32 h-32">
       <p class="weather-temp text-6xl font-bold">${data.temp}°</p>
       <p class="weather-type tracking-wider">${data.description}</p>
     `;
@@ -47,7 +87,7 @@ async function displayWeather(inputEl) {
 
     const weatherDetailsHTML = weatherDetail.map(weather => {
       return `
-        <div class="wind flex flex-col gap-3 items-center flex-grow">
+        <div class="${weather.name} flex flex-col gap-3 items-center flex-grow">
           <i class="fa-solid fa-${weather.icon}"></i>
           <p class="text-xs">${weather.detail}</p>
           <p class="text-light-2 text-xs">${weather.name}</p>
@@ -57,7 +97,7 @@ async function displayWeather(inputEl) {
 
     const weatherDetailContainer = document.querySelector('.weather-details');
     weatherDetailContainer.innerHTML = weatherDetailsHTML;
-    weatherDetailContainer.style.background = 'rgba(0, 0, 0, .4)'
+    weatherDetailContainer.style.background = 'rgba(0, 0, 0, .4)';
   }
 }
 

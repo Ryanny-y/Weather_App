@@ -1,12 +1,16 @@
+*, *::after, *::before {
+  box-sizing: border-box;
+}
+
 .weather-details > *{
   flex: 1;
 }
 
-.humidity {
+.Humidity {
   position: relative;
 }
 
-.humidity::after, .humidity::before {
+.Humidity::after, .Humidity::before {
   position: absolute;
   content: '';
   top: 10;
@@ -15,10 +19,26 @@
   background: rgba(255, 255, 255, .2);
 }
 
-.humidity::after {
+.Humidity::after {
   right: 0;
 }
 
-.humidity::before {
+.Humidity::before {
   left: 0;
+}
+
+/* HISTORY CONTAINER SCROLLBAR */
+
+.history-container::-webkit-scrollbar {
+  width: 7px;
+  height: 8px;
+  max-height: 8px;
+}
+.history-container::-webkit-scrollbar-track {
+  background: #111015;
+}
+.history-container::-webkit-scrollbar-thumb {
+  background: white;
+  border-left: 4px #111015 solid;
+  min-height: 20px
 }
